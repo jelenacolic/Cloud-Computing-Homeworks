@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Biblioteka</title>
+    <!--<link href="https://fonts.googleapis.com/css?family=Nova+Flat|PT+Sans" rel="stylesheet">-->
+
+    <link href="css/style.css" rel="stylesheet">
+    <script type='text/javascript'>
+        function ucitajKnjige() {
+            var tabela = document.getElementById("knjige");
+
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    var nizKnjiga = JSON.parse(this.responseText);
+
+                    var html = "<thead><tr><th>Naslov</th><th>Autor</th><th>Zanr</th><th>Brisanje</th><th>Izmena</th></tr></thead>";
+                    html += "<tbody>";
+
+                    for (var i = 0; i < nizKnjiga.length; i++) {
+                        html += "<tr>";
+                        html += "<td>" + nizKnjiga[i].title + "</td>";
+                        html += "<td>" + nizKnjiga[i].author + "</td>";
+                        html += "<td>" + nizKnjiga[i].genre + "</td>";
+                        html += "<td><a href='#' onclick='obrisiKnjigu(" + nizKnjiga[i].id + ")' class='linkButton'>Obrisi</a></td>";
+                        html += "<td><a href='#' onclick='ucitajKnjigu(" + nizKnjiga[i].id + ")' class='linkButton'>Izmeni</a></td>";
+                        html += "</tr>";
+                    }
+
+                    html += "</tbody>";
+                    tabela.innerHTML = html;
+
+                }
+            };
+
+            xhttp.open("GET", "http://52.208.172.195:8079/read-producer/all", true);
+            xhttp.send();
+        }
+
+        function unesiKnjigu() {
+            var author = document.getElementById("author").value;
+            var title = document.getElementById("title").value;
+            var genre = document.getElementById("genre").value;
+
+            if (title == "" || author == "" || genre == "") {
+                alert("Niste uneli sve podatke");
+            }
+            else {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        ucitajKnjige();
+                    }
+                };
+
+                xhttp.open("POST", "http://52.208.172.195:8079/update-producer/add", true);
+                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xhttp.send("author=" + author + "&title=" + title + "&genre=" + genre);
+            }
+        }
+
+        function obrisiKnjigu(idKnjige) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    ucitajKnjige();
+                }
+            };
+
+            xhttp.open("DELETE", "http://52.208.172.195:8079/delete-producer/delete?bookId="+idKnjige, true);
+            //xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.send();
+        }
+
+        function izmeniKnjigu() {
+            var author = document.getElementById("author").value;
+            var title = document.getElementById("title").value;
+            var genre = document.getElementById("genre").value;
+            var bookId = document.getElementById("hiddenBookId").value;
+
+            if (author == "" || title == "" || genre == "" || bookId == "") {
+                alert("Niste uneli sve podatke");
+            }
+            else {
+
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        ucitajKnjige();
+                    }
+                };
+
+                xhttp.open("PUT", "http://52.208.172.195:8079/update-producer/update/" + bookId, true);
+                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xhttp.send("author=" + author + "&title=" + title + "&genre=" + genre);
+            }
+        }
+
+        function ucitajKnjigu(bookId) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    var knjiga = JSON.parse(this.responseText);
+
+                    document.getElementById("author").value = knjiga.author;
+                    document.getElementById("title").value = knjiga.title;
+                    document.getElementById("genre").value = knjiga.genre;
+                    document.getElementById("hiddenBookId").value = knjiga.id;
+                }
+            };
+
+            xhttp.open("GET", "http://52.208.172.195:8079/read-producer/book/" + bookId, true);
+            xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhttp.send();
+        }
+
+
+    </script>
+</head>
+
+<body onload='ucitajKnjige()'>
+    <div class='content'>
+        <h1>Biblioteka
+            <hr />
+        </h1>
+        <table id="knjige">
+        </table>
+
+    </div>
+
+    <div class="side-input">
+        <form>
+            <table>
+                <tr>
+                    <td>
+                        Naslov:
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="hidden" name="hiddenBookId" id="hiddenBookId" />
+                        <input type="text" name="title" id="title" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Zanr:
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="text" name="genre" id="genre" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Autor:
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="text" name="author" id="author" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a href="#" onclick="unesiKnjigu()" class="linkButton">Unesi knjigu</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a href="#" onclick="izmeniKnjigu()" class="linkButton">Izmeni knjigu</a>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,166 @@
+@font-face {
+    font-family: 'Nova Flat';
+    src: url('./fonts/NovaFlat.ttf');
+}
+
+body {
+    margin: 0px;
+    font-family: 'Nova Flat', cursive;
+    background-color: #262626;
+    color: white;
+}
+
+.content {
+    width: 800px;
+    /*margin: auto;*/
+    margin-left: 200px;
+}
+
+#tabelaKnjiga, #knjige {
+    width: 100%;
+    border: 1px solid white;
+    border-collapse: collapse;
+}
+
+#tabelaKnjiga tr, #knjige tr {
+    height: 50px;
+    max-height: 150px;
+    border: 1px solid white;
+}
+
+#tabelaKnjiga td, #knjige td {
+    width: 100px;
+    text-align: center;
+    border: 1px solid white;
+}
+
+select {
+    width: 100%;
+    height: 30px;
+    font-family: inherit;
+    font-size: 14px;
+}
+
+
+h1 {
+    color: #00b3b3;
+    text-align: center;
+}
+
+ul {
+    background-color: #373737;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 150px;
+    position: fixed;
+    top: 0;
+    height: 100%;
+    overflow: auto;
+    color: white;
+    padding-top: 10px;
+}
+
+li a {
+    display: block;
+    color: #00b3b3;
+    padding: 8px 16px;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+li a:hover {
+    background-color: #262626;
+    color: white;
+}
+
+.linkButton {
+    background-color: #00b3b3;
+    color: white;
+    padding: 12px 14px;
+    text-decoration: none;
+}
+
+.side-input {
+    height: 100%;
+    width: 260px;
+    position: fixed;
+    right:0;
+    top: 0;
+    background-color: #373737;
+    padding-left: 20px;
+    padding-top: 20px;
+    padding-right: 20px;
+}
+
+.side-input tr:nth-child(even) {
+    height: 50px;
+}
+
+.side-input tr:last-child {
+    height: 70px;
+}
+
+.side-input table {
+    width: 100%;
+}
+
+.side-input input {
+    height: 30px;
+    font-size: 14px;
+    font-family: inherit;
+    width: 100%;
+    border: none;
+}
+
+.clanTabela, .tabela {
+    float: left;
+    background-color: #373737;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    padding-top: 5px;
+    padding-bottom: 10px;
+    text-align: center;
+}
+
+.clanTabela {
+    width: 190px;
+    height: 310px;
+}
+
+.tabela {
+    width: 190px;
+    height: 250px;
+}
+
+.tabela img {
+    max-width: 150px;
+    max-height: 200px;
+    width: auto;
+    height: auto;
+}
+
+.clanTabela tr, .tabela tr:last-child {
+    height: 50px;
+}
+
+
+.clanTabela img {
+    max-width: 180px;
+    max-height: 200px;
+    width: auto;
+    height: auto;
+}
+
+
+
+.divKnjiga img, .divKnjiga div {
+    float: left;
+}
+
+.divKnjiga img {
+    max-width: 150px;
+    max-height: 200px;
+    width: auto;
+    height: auto;
+}

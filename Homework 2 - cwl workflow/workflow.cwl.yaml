@@ -1,0 +1,208 @@
+#!/usr/bin/env cwl-runner
+
+cwlVersion: v1.0
+class: Workflow
+
+requirements:
+  ScatterFeatureRequirement: {}
+  SubworkflowFeatureRequirement: {}
+  InlineJavascriptRequirement: {}
+
+hints:
+  DockerRequirement:
+    dockerPull: jelenacolic/my-openjdk-9:9.0.1-11-slim
+
+inputs:
+  javaFajloviTar: File
+  naziviJavaFajlova: string[]
+  naziviKlasa: string[]
+
+steps:
+  raspakivanje:
+    run:
+      class: CommandLineTool
+      baseCommand: [tar, --extract]
+
+      inputs:
+        ulazniFajl:
+          type: File
+          inputBinding:
+            prefix: --file
+            position: 1
+        fajloviZaRaspakivanje:
+          type:
+            type: array
+            items: string
+
+      outputs:
+        izlazniFajlovi:
+          type:
+            type: array
+            items: File
+          outputBinding:
+            glob: $(inputs.fajloviZaRaspakivanje)
+
+    in:
+      ulazniFajl: javaFajloviTar
+      fajloviZaRaspakivanje: naziviJavaFajlova
+
+    out: [izlazniFajlovi]
+
+  kompajliranje:
+    run:
+      class: Workflow
+
+      inputs:
+        ulazniFajlovi: File[]
+        naziviMainKlasa: string[]
+
+      steps:
+        kompajliranje:
+          run:
+            class: CommandLineTool
+            baseCommand: javac
+            arguments: ["-d", $(runtime.outdir)]
+
+            inputs:
+              ulazniFajlovi:
+                type:
+                  type: array
+                  items: File
+                inputBinding:
+                  position: 1
+
+            outputs:
+              izlazniFajlovi:
+                type:
+                  type: array
+                  items: File
+                outputBinding:
+                  glob: "*.class"
+
+          in:
+            ulazniFajlovi: ulazniFajlovi
+
+          out: [izlazniFajlovi]
+        pakovanje:
+          run:
+            class: CommandLineTool
+            baseCommand: [jar, -c]
+
+            requirements:
+              InitialWorkDirRequirement:
+                listing: $(inputs.klase)
+
+            arguments:
+              - prefix: -e
+                valueFrom: $(inputs.glavnaKlasa)
+              - prefix: -f
+                valueFrom: $(inputs.glavnaKlasa+".jar")
+
+            inputs:
+              glavnaKlasa:
+                type: string
+              klase:
+                inputBinding:
+                  position: 3
+                type:
+                  type: array
+                  items: File
+                  inputBinding:
+                    valueFrom: $(self.basename)
+
+            outputs:
+              izlazniFajl:
+                type: File
+                outputBinding:
+                  glob: $(inputs.glavnaKlasa+".jar")
+
+          scatter: glavnaKlasa
+
+          in:
+            glavnaKlasa: naziviMainKlasa
+            klase: kompajliranje/izlazniFajlovi
+
+          out: [izlazniFajl]
+
+      outputs:
+        jarFajlovi:
+          type: File[]
+          outputSource: pakovanje/izlazniFajl
+
+    in:
+      ulazniFajlovi: raspakivanje/izlazniFajlovi
+      naziviMainKlasa: naziviKlasa
+
+    out: [jarFajlovi]
+  izvrsavanje:
+    run:
+      class: Workflow
+
+      inputs:
+        jarFajlovi: File[]
+
+      steps:
+        izvrsavanje:
+          run:
+            class: CommandLineTool
+            baseCommand: java
+
+            arguments:
+              - prefix: -jar
+                valueFrom: $(inputs.jarFajl)
+
+            inputs:
+              jarFajl:
+                type: File
+
+            outputs:
+              izlaz:
+                type: stdout
+
+            stdout: $(inputs.jarFajl.nameroot+".txt")
+
+          scatter: jarFajl
+
+          in:
+            jarFajl: jarFajlovi
+
+          out: [izlaz]
+
+        objedinjavanje:
+          run:
+            class: CommandLineTool
+            baseCommand: cat
+
+            inputs:
+              ulazniFajlovi:
+                type:
+                  type: array
+                  items: File
+                inputBinding:
+                  position: 1
+
+            outputs:
+              izlaz:
+                type: stdout
+
+            stdout: stdizlaz.txt
+
+          in:
+            ulazniFajlovi: izvrsavanje/izlaz
+
+          out: [izlaz]
+
+      outputs:
+        izlazniFajl:
+          type: File
+          outputSource: objedinjavanje/izlaz
+
+    in:
+      jarFajlovi: kompajliranje/jarFajlovi
+
+    out: [izlazniFajl]
+
+outputs:
+  izlaz:
+    type: File
+    outputSource: izvrsavanje/izlazniFajl

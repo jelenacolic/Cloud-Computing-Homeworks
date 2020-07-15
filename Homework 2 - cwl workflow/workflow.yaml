@@ -1,0 +1,5 @@
+javaFajloviTar:
+  class: File
+  path: klase.tar.xz
+naziviJavaFajlova: [Fajl1.java, Fajl2.java]
+naziviKlasa: [Klasa1, Klasa3, Klasa2]

@@ -1,0 +1,72 @@
+#!/usr/bin/env cwl-runner
+
+cwlVersion: v1.0
+class: Workflow
+
+requirements:
+  ScatterFeatureRequirement: {}
+  SubworkflowFeatureRequirement: {}
+
+hints:
+  DockerRequirement:
+    dockerPull: jelenacolic/domaci-scatter:latest
+
+inputs:
+  fajloviZaObradu: File[]
+  cenaSms: double
+  cenaPoziv: double
+
+steps:
+  obrada:
+    scatter: fajlZaObradu
+    in:
+      fajlZaObradu: fajloviZaObradu
+      cenaSmsa: cenaSms
+      cenaPoziva: cenaPoziv
+    run:
+      class: CommandLineTool
+
+      baseCommand: [bash, /pokreni-obradu.sh]
+
+      inputs:
+        fajlZaObradu:
+          type: File
+          inputBinding:
+            position: 1
+        cenaSmsa:
+          type: double
+          inputBinding:
+            position: 2
+        cenaPoziva:
+          type: double
+          inputBinding:
+            position: 3
+      outputs:
+        izlaz:
+          type: stdout
+      stdout: izlaz.txt
+
+    out: [izlaz]
+  max:
+    in:
+      fajlovi: obrada/izlaz
+    run:
+      class: CommandLineTool
+      baseCommand: [bash, /pokreni-max.sh]
+
+      inputs:
+        fajlovi:
+          type: File[]
+          inputBinding:
+            position: 1
+      outputs:
+        izlaz:
+          type: stdout
+      stdout: izlaz.txt
+
+    out: [izlaz]
+
+outputs:
+  izlaz:
+    type: File
+    outputSource: max/izlaz

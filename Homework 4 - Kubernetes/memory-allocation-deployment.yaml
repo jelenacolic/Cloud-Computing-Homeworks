@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: memory-allocation
+spec:
+  selector:
+    matchLabels:
+      app: memory-allocation
+  template:
+    metadata:
+      labels:
+        app: memory-allocation
+    spec:
+      containers:
+        - name: memory-allocation
+          image: jelenacolic/memory-allocation-server
+          ports:
+            - containerPort: 8080

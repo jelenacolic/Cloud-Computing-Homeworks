@@ -1,0 +1,6 @@
+fajloviZaObradu:
+  - { class: File, path: fajl1.txt }
+  - { class: File, path: fajl2.txt }
+  - { class: File, path: fajl3.txt }
+cenaSms: 3.26
+cenaPoziv: 5.89
